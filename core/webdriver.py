@@ -11,10 +11,3 @@ class Driver:
         self.webdriver = webdriver.Chrome(
             Path.joinpath(self.BASE_DIR, self.DRIVER_PATH)
         )
-
-    def open(self, url):
-        self.webdriver.get(url)
-        return self.webdriver
-
-    def find_element(self, locator):
-        return self.webdriver.find_element(*locator)

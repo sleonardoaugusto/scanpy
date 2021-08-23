@@ -1,11 +1,27 @@
 import logging
 
+from pyotp import TOTP
 from selenium.common.exceptions import TimeoutException, NoSuchFrameException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
+from core.components.navbar import NavBar
+from core.pages.base import Page
+
 logging.basicConfig(filename='login.log', level=logging.INFO)
+
+
+class Home(Page):
+    def __init__(self, webdriver):
+        super().__init__(webdriver)
+        self.navbar = NavBar(webdriver)
+
+    def settings(self):
+        self.navbar.open_settings()
+        secret_key = 'J6PMJ5GNXMGVU47A'
+        settings = DeviceAuthorization(self.webdriver, secret_key)
+        return settings
 
 
 class IBaseException(Exception):
@@ -29,17 +45,15 @@ class CaptchaRequired(IBaseException):
     pass
 
 
-class LoginPage:
-    def __init__(self, webdriver):
-        self.webdriver = webdriver
-        self.username = (By.ID, 'login_username')
-        self.username_incorrect = (By.ID, 'username-message')
-        self.captcha = (By.ID, 'px-captcha')
-        self.password = (By.ID, 'login_password')
-        self.password_incorrect = (By.ID, 'password-message')
-        self.continue_btn = (By.ID, 'login_password_continue')
-        self.login_btn = (By.ID, 'login_control_continue')
-        self.secret_answer = (By.ID, 'secret_answer')
+class Login(Page):
+    username = (By.ID, 'login_username')
+    username_incorrect = (By.ID, 'username-message')
+    captcha = (By.ID, 'px-captcha')
+    password = (By.ID, 'login_password')
+    password_incorrect = (By.ID, 'password-message')
+    continue_btn = (By.ID, 'login_password_continue')
+    login_btn = (By.ID, 'login_control_continue')
+    secret_answer = (By.ID, 'secret_answer')
 
     def login(self, username, password):
         logging.info('Logging in...')
@@ -49,14 +63,14 @@ class LoginPage:
 
     def _set_username(self, username):
         logging.info(f'Filling username "{username}"')
-        self.webdriver.find_element(*self.username).send_keys(username)
-        self.webdriver.find_element(*self.continue_btn).click()
+        self.find_element(self.username).send_keys(username)
+        self.find_element(self.continue_btn).click()
         self._validate_username()
 
     def _set_password(self, password):
         logging.info('Filling password')
-        self.webdriver.find_element(*self.password).send_keys(password)
-        self.webdriver.find_element(*self.login_btn).click()
+        self.find_element(self.password).send_keys(password)
+        self.find_element(self.login_btn).click()
         self._validate_password()
 
     def _validate_username(self):
@@ -89,6 +103,34 @@ class LoginPage:
             if human_verification in page_text:
                 error_message = 'Captcha required'
                 logging.error(error_message)
+                breakpoint()
                 raise CaptchaRequired(error_message)
         except NoSuchFrameException:
             self.webdriver.switch_to.parent_frame()
+
+
+class DeviceAuthorization(Page):
+    def __init__(self, webdriver, secret_key):
+        super().__init__(webdriver)
+        self.secret_key = secret_key
+        self.otp_input = (By.ID, 'deviceAuthOtp_otp')
+        self.otp_confirm_btn = (By.ID, 'next_continue')
+
+    def authorize(self):
+        totp = TOTP(self.secret_key)
+        verification_code = totp.now()
+        self._set_otp(verification_code)
+
+    def _set_otp(self, verification_code):
+        self.webdriver.find_element(*self.otp_input).send_keys(verification_code)
+        self.webdriver.find_element(*self.otp_confirm_btn).click()
+
+
+class Settings(Page):
+    def __init__(self, webdriver, secret_key=None):
+        super().__init__(webdriver)
+        self._authorize(secret_key)
+
+    def _authorize(self, secret_key):
+        if secret_key:
+            DeviceAuthorization(self.webdriver, secret_key).authorize()
