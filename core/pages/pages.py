@@ -2,26 +2,29 @@ import logging
 
 from pyotp import TOTP
 from selenium.common.exceptions import TimeoutException, NoSuchFrameException
+from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.wait import WebDriverWait
 
+from core import components
 from core.components.navbar import NavBar
 from core.pages.base import Page
+from core.webdriver import Waiter
+from logger import logger
 
-logging.basicConfig(filename='login.log', level=logging.INFO)
+__all__ = [
+    'Home',
+    'Login',
+    'Settings',
+    'DeviceAuthorization',
+    'ContactInfo',
+]
 
 
 class Home(Page):
     def __init__(self, webdriver):
         super().__init__(webdriver)
         self.navbar = NavBar(webdriver)
-
-    def settings(self):
-        self.navbar.open_settings()
-        secret_key = 'J6PMJ5GNXMGVU47A'
-        settings = DeviceAuthorization(self.webdriver, secret_key)
-        return settings
 
 
 class IBaseException(Exception):
@@ -55,7 +58,7 @@ class Login(Page):
     login_btn = (By.ID, 'login_control_continue')
     secret_answer = (By.ID, 'secret_answer')
 
-    def login(self, username, password):
+    def login(self, username: str, password: str):
         logging.info('Logging in...')
         self._set_username(username)
         self._captcha()
@@ -75,7 +78,7 @@ class Login(Page):
 
     def _validate_username(self):
         try:
-            WebDriverWait(self.webdriver, 10).until(
+            Waiter(self.webdriver).wait(
                 EC.presence_of_element_located(self.username_incorrect)
             )
             error_message = 'Invalid username'
@@ -86,7 +89,7 @@ class Login(Page):
 
     def _validate_password(self):
         try:
-            WebDriverWait(self.webdriver, 10).until(
+            Waiter(self.webdriver).wait(
                 EC.presence_of_element_located(self.password_incorrect)
             )
             error_message = 'Invalid password'
@@ -109,8 +112,14 @@ class Login(Page):
             self.webdriver.switch_to.parent_frame()
 
 
+class Settings(Page):
+    def __init__(self, webdriver: WebDriver):
+        super().__init__(webdriver)
+        self.navbar = components.SettingsNavBar(webdriver)
+
+
 class DeviceAuthorization(Page):
-    def __init__(self, webdriver, secret_key):
+    def __init__(self, webdriver: WebDriver, secret_key: str):
         super().__init__(webdriver)
         self.secret_key = secret_key
         self.otp_input = (By.ID, 'deviceAuthOtp_otp')
@@ -121,16 +130,13 @@ class DeviceAuthorization(Page):
         verification_code = totp.now()
         self._set_otp(verification_code)
 
-    def _set_otp(self, verification_code):
-        self.webdriver.find_element(*self.otp_input).send_keys(verification_code)
-        self.webdriver.find_element(*self.otp_confirm_btn).click()
+    def _set_otp(self, verification_code: str):
+        Waiter(self.webdriver).wait(EC.presence_of_element_located(self.otp_input))
+        self.find_element(self.otp_input).send_keys(verification_code)
+        self.find_element(self.otp_confirm_btn).click()
 
 
-class Settings(Page):
-    def __init__(self, webdriver, secret_key=None):
+class ContactInfo(Page):
+    def __init__(self, webdriver):
         super().__init__(webdriver)
-        self._authorize(secret_key)
-
-    def _authorize(self, secret_key):
-        if secret_key:
-            DeviceAuthorization(self.webdriver, secret_key).authorize()
+        self.account = components.Account(webdriver)

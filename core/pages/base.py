@@ -1,16 +1,20 @@
 from abc import ABC
+from typing import Union
+
+from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.remote.webelement import WebElement
 
 
 class PageElement(ABC):
-    def __init__(self, webdriver=None):
+    def __init__(self, webdriver: WebDriver = None):
         self.webdriver = webdriver
 
-    def find_element(self, locator):
+    def find_element(self, locator: tuple[str, str]) -> WebElement:
         return self.webdriver.find_element(*locator)
 
 
 class Page(PageElement, ABC):
-    def __init__(self, webdriver, url=None):
+    def __init__(self, webdriver: WebDriver, url: Union[str, None] = None):
         super().__init__(webdriver)
         self.url = url
 
