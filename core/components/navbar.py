@@ -8,8 +8,8 @@ from logger import logger
 
 
 class NavBar(PageElement):
-    avatar = (By.XPATH, '//*[@id="nav-right"]/ul/li[8]/button')
-    settings = (By.XPATH, '//*[@id="nav-right"]/ul/li[8]/ul/li[3]/ul/li[1]/a')
+    avatar = (By.XPATH, '//li[@data-cy="user-menu"]/button')
+    settings = (By.XPATH, '//span[@icon-name="settings"]')
 
     def open_settings(self, secret_key: Union[str, None] = None):
         logger.info(f'Opening settings page...')

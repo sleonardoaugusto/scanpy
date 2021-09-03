@@ -1,18 +1,17 @@
-import typing
-from time import sleep
-
 from selenium.common.exceptions import NoSuchElementException
 
+from logger import logger
 
-def retry(func: typing.Callable):
-    def wrapper(self, times: int = 3, seconds: int = 2, *args, **kwargs):
-        tries = 0
-        while tries < times:
+
+def retry(func):
+    def wrapper(retries: int = 3, *args, **kwargs):
+        attempts = 0
+        while attempts < retries:
             try:
-                func(self, *args, **kwargs)
+                func(*args, **kwargs)
                 break
-            except NoSuchElementException:
-                sleep(seconds)
+            except NoSuchElementException as e:
+                logger.info(e)
                 continue
 
     return wrapper

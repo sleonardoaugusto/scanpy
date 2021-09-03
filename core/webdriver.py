@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
 
-def base_dir():
+def project_dir():
     project_name = 'scanpy'
     base_dir = Path(__file__).resolve()
     while True:
@@ -19,9 +19,9 @@ def base_dir():
 class Driver:
     DRIVER_PATH = 'webdrivers/chromedriver'
 
-    def __init__(self, base_dir):
+    def __init__(self):
         self.webdriver = webdriver.Chrome(
-            executable_path=Path.joinpath(base_dir, self.DRIVER_PATH)
+            executable_path=Path.joinpath(project_dir(), self.DRIVER_PATH)
         )
 
     def __enter__(self) -> WebDriver:

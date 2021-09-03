@@ -1,9 +1,10 @@
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 
 from core import pages
 from core.pages.base import PageElement
-from core.utils import retry
+from core.webdriver import Waiter
 
 
 class SettingsNavBar(PageElement):
@@ -22,8 +23,8 @@ class Account(PageElement):
         self.edit_account = (By.XPATH, '//button[@aria-label="Edit account"]')
         self._load()
 
-    @retry
     def _load(self):
+        Waiter(self.webdriver).wait(EC.presence_of_element_located(self.user_id))
         self.user_id = self.find_element(self.user_id).text
         self.edit()
         self.first_name = self.find_element(self.first_name).get_attribute('value')

@@ -15,4 +15,4 @@ def build_parser():
 if __name__ == '__main__':
     parser = build_parser()
     args = parser.parse_args()
-    run(args.username, args.password, args.secret_key)
+    run(username=args.username, password=args.password, secret_key=args.secret_key)

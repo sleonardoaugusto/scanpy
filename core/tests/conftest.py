@@ -1,7 +1,7 @@
 import pytest
 
 from core.pages.pages import Login
-from core.webdriver import Driver, base_dir
+from core.webdriver import Driver
 from scrapper import BASE_URL
 
 
@@ -17,7 +17,7 @@ def fix_user():
 
 @pytest.fixture
 def fix_login_page() -> Login:
-    with Driver(base_dir=base_dir()) as driver:
+    with Driver() as driver:
         login_page = Login(webdriver=driver, url=BASE_URL)
         login_page.open()
         yield login_page

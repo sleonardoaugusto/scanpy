@@ -8,7 +8,6 @@ from core import components
 from core.components.navbar import NavBar
 from core.pages.base import Page
 from core.webdriver import Waiter
-from logger import logger
 
 __all__ = [
     'Home',

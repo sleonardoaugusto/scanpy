@@ -1,7 +1,8 @@
 from selenium.webdriver.chrome.webdriver import WebDriver
 
 from core.pages import Login, Home, Settings
-from core.webdriver import Driver, base_dir
+from core.utils import retry
+from core.webdriver import Driver
 from db import Database
 from schemas.schemas import AccountSchema
 
@@ -22,8 +23,8 @@ class Scrapper:
         page.login(username=username, password=password)
 
     def open_settings(self):
-        home = Home(self.webdriver)
-        home.navbar.open_settings(self.secret_key)
+        page = Home(self.webdriver)
+        page.navbar.open_settings(self.secret_key)
 
 
 class SettingsScrappy(Scrapper):
@@ -38,8 +39,9 @@ class SettingsScrappy(Scrapper):
         ).dict()
 
 
-def run(username: str, password: str, secret_key: str):
-    with Driver(base_dir=base_dir()) as driver:
+@retry
+def run(*, username: str, password: str, secret_key: str):
+    with Driver() as driver:
         settings_scrappy = SettingsScrappy(driver, username, password, secret_key)
         db = Database()
         db.save(settings_scrappy.account_info())
