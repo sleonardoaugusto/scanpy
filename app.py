@@ -1,13 +1,15 @@
-import logging
-
 from selenium.webdriver.chrome.webdriver import WebDriver
 
 from core.pages import Login, Home, Settings
 from core.webdriver import Driver, base_dir
 from db import Database
 from schemas.schemas import AccountSchema
+from selenium.webdriver.chrome.webdriver import WebDriver
 
-logging.basicConfig(filename='login.log', level=logging.INFO)
+from core.pages import Login, Home, Settings
+from core.webdriver import Driver, base_dir
+from db import Database
+from schemas.schemas import AccountSchema
 
 BASE_URL = 'https://www.upwork.com/ab/account-security/login'
 
