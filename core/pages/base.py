@@ -1,4 +1,5 @@
 from abc import ABC
+from time import sleep
 from typing import Union
 
 from selenium.webdriver.chrome.webdriver import WebDriver
@@ -10,6 +11,7 @@ class PageElement(ABC):
         self.webdriver = webdriver
 
     def find_element(self, locator: tuple[str, str]) -> WebElement:
+        sleep(3)
         return self.webdriver.find_element(*locator)
 
 
