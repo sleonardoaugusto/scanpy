@@ -11,7 +11,7 @@ console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)
 console_handler.setFormatter(formatter)
 
-file_handler = logging.FileHandler('log.log')
+file_handler = logging.FileHandler(filename='log.log')
 file_handler.setLevel(logging.INFO)
 file_handler.setFormatter(formatter)
 

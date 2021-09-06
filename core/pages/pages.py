@@ -172,7 +172,7 @@ class ContactInfo(Page):
         self.account = components.Account(webdriver)
         self.location = components.Location(webdriver)
 
-    def info(self):
+    def info(self) -> dict:
         account_data = AccountSchema(
             user_id=self.account.user_id,
             name=self.account.first_name,

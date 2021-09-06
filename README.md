@@ -23,8 +23,15 @@ pytest
 
 ## Running
 You can interact with the application by commandline.
+
+- Scrapping with secret key
 ```
-python app.py --username=[username] --password=[password] --secret_key[secret_key] --secret_answer=[secret_answer]
+python app.py --username=[username] --password=[password] --secret_key=[secret_key]
+```
+
+- Scrapping with secret answer
+```
+python app.py --username=[username] --password=[password] --secret_answer=[secret_answer]
 ```
 
 ## Database

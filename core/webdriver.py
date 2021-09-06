@@ -17,11 +17,9 @@ def project_dir():
 
 
 class Driver:
-    DRIVER_PATH = 'webdrivers/chromedriver'
-
-    def __init__(self):
+    def __init__(self, path):
         self.webdriver = webdriver.Chrome(
-            executable_path=Path.joinpath(project_dir(), self.DRIVER_PATH)
+            executable_path=Path.joinpath(project_dir(), path)
         )
 
     def __enter__(self) -> WebDriver:

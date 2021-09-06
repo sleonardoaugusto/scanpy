@@ -1,6 +1,6 @@
 import argparse
 
-from scrapper import run
+from scrapper.scrapper import run
 
 
 def build_parser():

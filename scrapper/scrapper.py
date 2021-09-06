@@ -48,11 +48,11 @@ class SettingsScrappy(Scrapper):
         return Settings(self.webdriver).navbar.contact_info.info()
 
 
-@retry
+@retry(retries=3)
 def run(
     *, username: str, password: str, secret_key: str = None, secret_answer: str = None
 ):
-    with Driver() as driver:
+    with Driver(path='webdrivers/chromedriver') as driver:
         settings_scrappy = SettingsScrappy(
             driver, username, password, secret_key, secret_answer
         )
