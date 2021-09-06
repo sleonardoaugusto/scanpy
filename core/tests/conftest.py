@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 from core.pages.pages import Login
@@ -27,3 +29,8 @@ def fix_login_page() -> Login:
 def fix_home(fix_login_page, fix_user):
     fix_login_page.login(username=fix_user.username, password=fix_user.password)
     yield fix_login_page.webdriver
+
+
+@pytest.fixture(autouse=True, scope='session')
+def delete_logs():
+    Path.unlink(Path('log.log'))
