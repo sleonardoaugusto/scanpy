@@ -8,6 +8,7 @@ def build_parser():
     parser.add_argument('--username')
     parser.add_argument('--password')
     parser.add_argument('--secret_key', help='OTP secret key')
+    parser.add_argument('--secret_answer')
 
     return parser
 
@@ -15,4 +16,9 @@ def build_parser():
 if __name__ == '__main__':
     parser = build_parser()
     args = parser.parse_args()
-    run(username=args.username, password=args.password, secret_key=args.secret_key)
+    run(
+        username=args.username,
+        password=args.password,
+        secret_key=args.secret_key,
+        secret_answer=args.secret_answer,
+    )

@@ -1,3 +1,5 @@
+from typing import Union
+
 from pyotp import TOTP
 from selenium.common.exceptions import TimeoutException, NoSuchFrameException
 from selenium.webdriver.chrome.webdriver import WebDriver
@@ -14,10 +16,13 @@ __all__ = [
     'Login',
     'Settings',
     'DeviceAuthorization',
+    'OTPAuth',
+    'AnswerAuth',
     'ContactInfo',
 ]
 
 from logger import logger
+from schemas.schemas import AccountSchema, LocationSchema
 
 
 class Home(Page):
@@ -117,7 +122,7 @@ class Settings(Page):
         self.navbar = components.SettingsNavBar(webdriver)
 
 
-class DeviceAuthorization(Page):
+class OTPAuth(Page):
     def __init__(self, webdriver: WebDriver, secret_key: str):
         super().__init__(webdriver)
         self.secret_key = secret_key
@@ -137,7 +142,52 @@ class DeviceAuthorization(Page):
         logger.info(f'Device authorized.')
 
 
+class AnswerAuth(Page):
+    def __init__(self, webdriver: WebDriver, secret_answer: str):
+        super().__init__(webdriver)
+        self.secret_answer = secret_answer
+        self.answer_input = (By.ID, 'deviceAuth_answer')
+        self.otp_confirm_btn = (By.ID, 'control_save')
+
+    def authorize(self):
+        self._set_secret_answer(self.secret_answer)
+
+    def _set_secret_answer(self, secret_answer: str):
+        Waiter(self.webdriver).wait(EC.presence_of_element_located(self.answer_input))
+        self.find_element(self.answer_input).send_keys(secret_answer)
+        self.find_element(self.otp_confirm_btn).click()
+
+
+class DeviceAuthorization:
+    def __init__(self, auth_page: Union[OTPAuth, AnswerAuth]):
+        self.auth_page = auth_page
+
+    def authorize(self):
+        self.auth_page.authorize()
+
+
 class ContactInfo(Page):
     def __init__(self, webdriver):
         super().__init__(webdriver)
         self.account = components.Account(webdriver)
+        self.location = components.Location(webdriver)
+
+    def info(self):
+        account_data = AccountSchema(
+            user_id=self.account.user_id,
+            name=self.account.first_name,
+            surname=self.account.last_name,
+            email=self.account.email,
+        )
+        location_data = LocationSchema(
+            time_zone=self.location.time_zone,
+            country=self.location.country,
+            street=self.location.street,
+            apt_suite=self.location.apt_suite,
+            city=self.location.city,
+            state_province=self.location.state_province,
+            zipcode=self.location.zipcode,
+            country_code=self.location.country_code,
+            phone=self.location.phone,
+        )
+        return {**account_data.dict(), **location_data.dict()}
